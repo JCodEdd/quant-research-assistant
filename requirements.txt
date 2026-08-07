@@ -1,0 +1,28 @@
+# Core
+pandas
+numpy
+matplotlib
+plotly
+
+# Market Data & Indicators
+yfinance
+pandas-ta
+
+# Optimization
+scipy
+optuna
+
+# AI
+google-genai
+
+# Utilities
+python-dotenv
+pyyaml
+loguru
+rich
+tqdm
+
+# Testing & Linting
+pytest
+ruff
+black
