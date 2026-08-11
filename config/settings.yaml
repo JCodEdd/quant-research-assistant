@@ -1,0 +1,7 @@
+cache:
+  enabled: true
+  folder: data/cache
+
+market:
+  default_start: "2020-01-01"
+  default_ticker: "BTC-USD"

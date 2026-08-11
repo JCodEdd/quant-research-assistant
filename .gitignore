@@ -1,2 +1,20 @@
 
 .venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.env.*
+
+# Logs & Data
+logs/
+data/
+cache/
+*.log
+
+# IDEs
+.vscode/
