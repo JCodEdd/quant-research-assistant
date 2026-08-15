@@ -8,6 +8,6 @@ class MarketDataRequest:
     Data class representing a market data request.
     """
     provider: str
-    ticker: str
+    tickers: str | list[str]
     start_date: datetime
     end_date: datetime

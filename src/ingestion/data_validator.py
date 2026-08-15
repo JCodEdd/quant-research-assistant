@@ -21,14 +21,20 @@ class DataValidator:
             MarketDataError: If the data is empty or contains NaN values.
         """
         required_columns = {
-            "Open", 
-            "High", 
-            "Low", 
-            "Close", 
+            "Open",
+            "High",
+            "Low",
+            "Close",
             "Volume"
         }
 
-        missing_columns = required_columns - set(data.columns)
+        # Handle multi-index columns for multi-ticker data
+        if isinstance(data.columns, pd.MultiIndex):
+            columns_to_check = set(data.columns.get_level_values(0))
+        else:
+            columns_to_check = set(data.columns)
+
+        missing_columns = required_columns - columns_to_check
         if missing_columns:
             raise MarketDataError(
                 f"Missing required columns: {', '.join(missing_columns)}"
@@ -48,8 +54,8 @@ class DataValidator:
             raise MarketDataError(
                 "Data timestamps are not in chronological order."
             )
+
         if data.isnull().any().any():
             raise MarketDataError(
                 "Data contains NaN values."
             )
-       
