@@ -10,8 +10,18 @@ class SMA(Indicator):
         self.window = window
 
     @property
+    def required_lookback(self) -> int:
+        """Only needs the an extra window of previous data"""
+        return self.window
+
+    @property
     def name(self) -> str:
         return f"SMA_{self.window}"
 
-    def compute(self, df: pd.DataFrame) -> pd.Series:
-        return df["Close"].rolling(window=self.window).mean()
+    def compute(self, df: pd.DataFrame) -> pd.DataFrame:
+        result = df["Close"].rolling(window=self.window).mean()
+        if isinstance(result, pd.Series):
+            return result.to_frame(self.name)
+
+        result.columns = pd.MultiIndex.from_product([[self.name], result.columns])
+        return result

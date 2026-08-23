@@ -10,9 +10,20 @@ class RollingVolatility(Indicator):
         self.window =  window
 
     @property
+    def required_lookback(self) -> int:
+        """Needs and extra window + 1 of data because we lose the first value calculating the return"""
+        return self.window + 1
+
+    @property
     def name(self) -> str:
         return f"Volatility_{self.window}"
 
-    def compute(self, df: pd.DataFrame) -> pd.Series:
+    def compute(self, df: pd.DataFrame) -> pd.DataFrame:
         returns = df["Close"].pct_change()
-        return returns.rolling(window=self.window).std()
+        result = returns.rolling(window=self.window).std()
+
+        if isinstance(result, pd.Series):
+            return result.to_frame(self.name)
+
+        result.columns = pd.MultiIndex.from_product([[self.name], result.columns])
+        return result

@@ -4,7 +4,7 @@ from features.indicator import Indicator
 
 
 class FeaturePipeline:
-    """Pipeline to apply a list of idicators and enrich a market data DataFrame"""
+    """Pipeline to apply a list of indicators and enrich a market data DataFrame"""
 
     def __init__(self, indicators: list[Indicator]) -> None:
         self.indicators = indicators
@@ -19,7 +19,7 @@ class FeaturePipeline:
         Returns:
             pd.DataFrame: DataFrame enriched with indicator columns.
         """
-        enriched_df = df.copy()
+        results = [df]
         for indicator in self.indicators:
-            enriched_df[indicator.name] = indicator.compute(df)
-        return enriched_df
+            results.append(indicator.compute(df))
+        return pd.concat(results, axis=1)

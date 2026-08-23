@@ -10,8 +10,19 @@ class RollingHigh(Indicator):
         self.window = window
 
     @property
+    def required_lookback(self) -> int:
+        """Only needs an extra window of data"""
+        return self.window
+
+    @property
     def name(self) -> str:
         return f"RollingHigh_{self.window}"
 
-    def compute(self, df: pd.DataFrame) -> pd.Series:
-        return df["High"].rolling(window=self.window).max()
+    def compute(self, df: pd.DataFrame) -> pd.DataFrame:
+        result = df["High"].rolling(window=self.window).max()
+
+        if isinstance(result, pd.Series):
+            return result.to_frame(self.name)
+
+        result.columns = pd.MultiIndex.from_product([[self.name], result.columns])
+        return result

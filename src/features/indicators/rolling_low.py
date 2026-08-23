@@ -10,8 +10,19 @@ class RollingLow(Indicator):
         self.window = window
 
     @property
+    def required_lookback(self) -> int:
+        """Only needs the an extra window of previous"""
+        return self.window
+
+    @property
     def name(self) -> str:
         return f"RollingLow_{self.window}"
 
-    def compute(self, df: pd.DataFrame) -> pd.Series:
-        return df["Low"].rolling(window=self.window).min()
+    def compute(self, df: pd.DataFrame) -> pd.DataFrame:
+        result = df["Low"].rolling(window=self.window).min()
+
+        if isinstance(result, pd.Series):
+            return result.to_frame(self.name)
+
+        result.column = pd.MultiIndex.from_product([[self.name], result.columns])
+        return result

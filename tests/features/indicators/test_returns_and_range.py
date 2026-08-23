@@ -27,7 +27,8 @@ def test_returns_computes_pct_change_accurately(sample_ohlcv_df):
     ret = Returns(window=1)
 
     # Act
-    result = ret.compute(sample_ohlcv_df)
+    result_df = ret.compute(sample_ohlcv_df)
+    result = result_df[ret.name]
 
     # Assert
     assert ret.name == "Returns_1"
@@ -42,7 +43,8 @@ def test_rolling_high_finds_max_value_in_window(sample_ohlcv_df):
     rh = RollingHigh(window=3)
 
     # Act
-    result = rh.compute(sample_ohlcv_df)
+    result_df = rh.compute(sample_ohlcv_df)
+    result = result_df[rh.name]
 
     # Assert
     assert rh.name == "RollingHigh_3"
@@ -57,7 +59,8 @@ def test_rolling_low_finds_min_value_in_window(sample_ohlcv_df):
     rl = RollingLow(window=3)
 
     # Act
-    result = rl.compute(sample_ohlcv_df)
+    result_df = rl.compute(sample_ohlcv_df)
+    result = result_df[rl.name]
 
     # Assert
     assert rl.name == "RollingLow_3"
@@ -96,5 +99,5 @@ def test_returns_with_flat_prices_returns_zero(sample_ohlcv_df):
     result = ret.compute(flat_df)
 
     # Assert
-    valid_values = result.dropna()
+    valid_values = result[ret.name].dropna()
     assert (valid_values == 0.0).all()

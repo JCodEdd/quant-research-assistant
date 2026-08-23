@@ -24,7 +24,8 @@ def test_sma_computes_correct_rolling_mean(sample_market_df):
     sma = SMA(window=3)
 
     # Act
-    result = sma.compute(sample_market_df)
+    result_df = sma.compute(sample_market_df)
+    result = result_df[sma.name]
 
     # Assert
     assert sma.name == "SMA_3"
@@ -43,17 +44,14 @@ def test_ema_computes_exponential_weighted_average(sample_market_df):
     ema = EMA(window=3)
 
     # Act
-    result = ema.compute(sample_market_df)
+    result_df = ema.compute(sample_market_df)
+    result = result_df[ema.name]
 
     # Assert
     assert ema.name == "EMA_3"
     assert result.iloc[0] == 10.0
     assert result.iloc[1] == pytest.approx(10.5)
     assert result.iloc[2] == pytest.approx(11.25)
-
-    assert not result.isna().all()
-    # First value should equal the first close price
-    assert result.iloc[0] == 10.0
 
 
 # ============================================================================
@@ -91,7 +89,8 @@ def test_sma_with_window_exceeding_dataset_length_returns_all_nans(sample_market
     sma = SMA(window=15)
 
     # Act
-    result = sma.compute(sample_market_df)
+    result_df = sma.compute(sample_market_df)
+    result = result_df[sma.name]
 
     # Assert
     assert result.isna().all()
@@ -105,7 +104,8 @@ def test_sma_with_constant_prices_returns_constant_values(sample_market_df):
     sma = SMA(window=3)
 
     # Act
-    result = sma.compute(constant_df)
+    result_df = sma.compute(constant_df)
+    result = result_df[sma.name]
 
     # Assert
     assert result.iloc[2] == 50.0

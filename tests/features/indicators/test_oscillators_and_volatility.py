@@ -33,13 +33,15 @@ def test_rsi_computes_valid_values(sample_ohlcv_df):
     rsi = RSI(window=3)
 
     # Act
-    result = rsi.compute(sample_ohlcv_df)
+    result_df = rsi.compute(sample_ohlcv_df)
+    result = result_df[rsi.name]
 
     # Assert
     assert rsi.name == "RSI_3"
     assert pd.isna(result.iloc[2])
     assert result.iloc[3] == 100.0
 
+    # Fairly trivial but still a safeguard
     valid_values = result.dropna()
     assert (valid_values >= 0.0).all()
     assert (valid_values <= 100.0).all()
@@ -54,13 +56,15 @@ def test_atr_computes_valid_values(sample_ohlcv_df):
     atr = ATR(window=3)
 
     # Act
-    result = atr.compute(sample_ohlcv_df)
+    result_df = atr.compute(sample_ohlcv_df)
+    result = result_df[atr.name]
 
     # Assert
     assert atr.name == "ATR_3"
     assert pd.isna(result.iloc[1])
     assert result.iloc[2] == 2.0
 
+    # Fairly trivial but still a safeguard
     valid_values = result.dropna()
     assert (valid_values > 0).all()
 
@@ -75,12 +79,14 @@ def test_volatility_computes_valid_values(sample_ohlcv_df):
     vol = RollingVolatility(window=3)
 
     # Act
-    result = vol.compute(sample_ohlcv_df)
+    result_df = vol.compute(sample_ohlcv_df)
+    result = result_df[vol.name]
 
     # Assert
     assert vol.name == "Volatility_3"
     assert result.iloc[3] == pytest.approx(0.0076376, abs=1e-5)
 
+    # Fairly trivial but still a safeguard
     valid_values = result.dropna()
     assert (valid_values >= 0).all()
 
@@ -115,5 +121,5 @@ def test_volatility_with_constant_prices_evaluates_to_zero(sample_ohlcv_df):
     result = vol.compute(flat_df)
 
     # Assert
-    valid_values = result.dropna()
+    valid_values = result[vol.name].dropna()
     assert (valid_values == 0.0).all()
