@@ -5,15 +5,14 @@ A modular Python platform designed to support the development and testing of qua
 ## Vision
 The goal of this project is to build an internal research platform that allows trading strategies to be defined, tested, and analyzed in a reproducible, professional, and modular way. It prioritizes high code quality, robust data handling, and anti-bias principles (e.g., prevention of lookahead bias) over "black box" automated trading.
 
-## Current Stage: Module 1 (Data Ingestion)
-The project is currently in its initial development phase, focusing on a robust data ingestion layer.
+## Current Stage: Module 2 (Feature Engineering & Research Orchestration)
+The project has evolved into a fully functional research pipeline.
 - **Completed**:
-    - Data Ingestion Module (fetching, validating, and caching).
-    - Monthly deterministic parquet partitioning for scalable storage.
-    - Behavioral testing suite (AAA pattern) with 100% pass rate.
-    - Standardized data validation (ensuring OHLCV integrity).
+    - **Module 1 (Data Ingestion)**: Robust fetching, validation, and caching.
+    - **Module 2 (Feature Engineering)**: Calculation pipeline for technical indicators (SMA, EMA, RSI, ATR, Volatility, etc.).
+    - **Orchestration**: `ResearchOrchestrator` implementation for unified data flow.
 - **Next Phase (Upcoming)**:
-    - Module 2: Feature Engineering (indicators calculation pipeline).
+    - Module 3: Strategy & Signal Generation.
 
 ## Getting Started
 1. Install dependencies:
@@ -30,3 +29,5 @@ The project is currently in its initial development phase, focusing on a robust 
    PYTHONPATH=src pytest
    ```
 
+## License
+MIT

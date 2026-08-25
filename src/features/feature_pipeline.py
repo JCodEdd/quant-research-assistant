@@ -9,6 +9,12 @@ class FeaturePipeline:
     def __init__(self, indicators: list[Indicator]) -> None:
         self.indicators = indicators
 
+    def get_max_lookback(self) -> int:
+        """Calculate the maximum lookback required by all the indicators in the pipeline"""
+        if not self.indicators:
+            return 0
+        return max(ind.required_lookback for ind in self.indicators)
+
     def run(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Enrich the imput DataFrame with calculated indicators.
