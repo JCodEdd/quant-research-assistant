@@ -2,29 +2,7 @@ import pandas as pd
 import pytest
 
 from features.feature_pipeline import FeaturePipeline
-from features.indicator import Indicator
-
-
-class DummyIndicator(Indicator):
-    """Dummy indicator to isolate the pipeline from specific indicators logic"""
-
-    def __init__(self, window: int) -> None:
-        self.window = window
-
-    @property
-    def required_lookback(self) -> int:
-        return self.window
-
-    @property
-    def name(self) -> str:
-        return f"DummyIndicator_{self.window}"
-
-    def compute(self, df: pd.DataFrame) -> pd.DataFrame:
-        result = df['Close']
-        if isinstance(result, pd.Series):
-            return result.to_frame(self.name)
-        result.columns = pd.MultiIndex.from_product([[self.name], result.columns])
-        return result
+from tests.fakes import DummyIndicator
 
 
 @pytest.fixture

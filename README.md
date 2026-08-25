@@ -26,7 +26,7 @@ The project has evolved into a fully functional research pipeline.
    ```
 4. Execute tests:
    ```bash
-   PYTHONPATH=src pytest
+   PYTHONPATH=src:. pytest
    ```
 
 ## License

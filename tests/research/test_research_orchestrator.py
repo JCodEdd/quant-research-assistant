@@ -1,73 +1,15 @@
-
 from datetime import timezone, datetime
 
 import pandas as pd
 import pytest
 
 from exceptions.data_exceptions import EmptyDatasetError
-from features.indicators.rsi import RSI
-from features.indicators.sma import SMA
-from ingestion.cache import Cache
 from ingestion.data_validator import DataValidator
 from ingestion.ingestion_service import IngestionService
-from interfaces.data_provider import DataProvider
-from models.market_data_request import MarketDataRequest
 from research.research_orchestrator import ResearchOrchestrator
+from tests.fakes import DummyIndicator, FakeProvider, InMemoryCache
+from tests.ingestion.test_ingestion_service import EmptyFakeProvider
 
-
-class InMemoryCache(Cache):
-    """A lightweight in memory fake for cache"""
-
-    def __init__(self):
-        self._store = {}
-
-    def is_month_cached(self, provider: str, ticker: str, year: int, month: int) -> bool:
-        return (provider, ticker, year, month) in self._store
-
-    def get_month(self, provider: str, ticker: str, year: int, month: int) -> pd.DataFrame | None:
-        return self._store.get((provider, ticker, year, month))
-
-    def save_month(
-            self,
-            provider: str,
-            ticker: str,
-            year: int,
-            month: int,
-            df: pd.DataFrame
-    ) -> None:
-        self._store[(provider, ticker, year, month)] = df.copy()
-
-class FakeProvider(DataProvider):
-    """A fake data provider that creates synthetic market data and tracks downloads"""
-
-    def download_data(self, market_data_request: MarketDataRequest) -> pd.DataFrame:
-        tickers = [market_data_request.tickers] if isinstance(market_data_request.tickers, str) else market_data_request.tickers
-        dates = pd.date_range(
-            market_data_request.start_date,
-            market_data_request.end_date,
-            tz=timezone.utc
-        )
-
-        if len(tickers) == 1:
-            data = {
-                'Open': [100.0 + i for i in range(len(dates))],
-                'High': [105.0 + i for i in range(len(dates))],
-                'Low': [95.0 + i for i in range(len(dates))],
-                'Close': [102.0 + i for i in range(len(dates))],
-                'Volume': [1000 + i * 10 for i in range(len(dates))]
-            }
-            return pd.DataFrame(data, index=dates)
-        else:
-            metrics = ['Open', 'High', 'Low', 'Close', 'Volume']
-            columns = pd.MultiIndex.from_product([metrics, tickers])
-            data = [[100.0] * len(columns) for _ in range(len(dates))]
-            return pd.DataFrame(data, index=dates, columns=columns)
-
-class EmptyFakeProvider(DataProvider):
-    """Fake provider simulating an asset with no data found"""
-
-    def download_data(self, market_data_request: MarketDataRequest) -> pd.DataFrame:
-        return pd.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Volume'])
 
 @pytest.fixture
 def orchestrator():
@@ -87,7 +29,7 @@ def test_research_orchestrator_fetches_enriched_data_with_warmup(orchestrator):
     # Arrange
     start_date = datetime(2024, 2, 1, tzinfo=timezone.utc)
     end_date = datetime(2024, 2, 10, tzinfo=timezone.utc)
-    indicators = [SMA(window=5)]
+    indicators = [DummyIndicator(window=5)]
 
     # Act
     result = orchestrator.get_enriched_data(
@@ -106,8 +48,8 @@ def test_research_orchestrator_fetches_enriched_data_with_warmup(orchestrator):
 
     # 2. Indicators are calculated and present, with NO NaNs at the start date
     # (because warm-up data was fetched prior to Feb 1)
-    assert "SMA_5" in result.columns
-    assert not pd.isna(result["SMA_5"]. iloc[0])
+    assert "DummyIndicator_5" in result.columns
+    assert not pd.isna(result["DummyIndicator_5"]. iloc[0])
 
 
 # ============================================================================
@@ -129,7 +71,7 @@ def test_research_orchestrator_propagates_empty_dataset_error(orchestrator):
             tickers="AAPL",
             start_date=start_date,
             end_date=end_date,
-            indicators=[SMA(window=3)]
+            indicators=[DummyIndicator(window=3)]
         )
 
 
@@ -142,7 +84,7 @@ def test_research_orchestrator_handles_multi_ticker_request(orchestrator):
     # Arrange
     start_date = datetime(2024, 2, 1, tzinfo=timezone.utc)
     end_date = datetime(2024, 2, 5, tzinfo=timezone.utc)
-    indicators = [SMA(window=3), RSI(window=3)]
+    indicators = [DummyIndicator(window=3), DummyIndicator(window=3)]
 
     # Act
     result = orchestrator.get_enriched_data(
@@ -155,8 +97,8 @@ def test_research_orchestrator_handles_multi_ticker_request(orchestrator):
 
     # Assert
     assert isinstance(result.columns, pd.MultiIndex)
-    assert "SMA_3" in result.columns.get_level_values(0)
-    assert "RSI_3" in result.columns.get_level_values(0)
+    assert "DummyIndicator_3" in result.columns.get_level_values(0)
+    assert "DummyIndicator_3" in result.columns.get_level_values(0)
     assert "AAPL" in result.columns.get_level_values(1)
     assert "MSFT" in result.columns.get_level_values(1)
     assert len(result) == 5
